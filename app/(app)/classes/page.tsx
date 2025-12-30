@@ -160,7 +160,138 @@ const ClassesPage = async ({ searchParams }: PageProps) => {
     .map((s) => s.venue)
     .filter((v): v is NonNullable<typeof v> => v !== null);
 
-  return <div>ClassesPage</div>;
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Page Header with Gradient */}
+      <div className="border-b bg-gradient-to-r from-primary/5 via-background to-primary/5">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            {/* Search + Filter Button */}
+            <div className="flex items-center gap-3">
+              <Suspense
+                fallback={
+                  <div className="flex h-11 w-full items-center gap-2 rounded-full border bg-background px-4 sm:w-80 lg:w-96">
+                    <SearchIcon className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Loading search...
+                    </span>
+                  </div>
+                }
+              >
+                <ClassSearch className="w-full sm:w-80 lg:w-96" />
+              </Suspense>
+
+              {/* Filter Button (mobile/tablet) */}
+              <div className="lg:hidden">
+                <Suspense fallback={null}>
+                  <ClassesFilters
+                    categories={categories}
+                    activeFilters={{
+                      venueId: venueId || null,
+                      venueName,
+                      categoryIds,
+                      tierLevels,
+                    }}
+                    mobileOnly
+                  />
+                </Suspense>
+              </div>
+            </div>
+
+            {/* Location info */}
+            <div className="flex w-full items-center gap-2 overflow-hidden rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 lg:w-auto lg:max-w-md">
+              <MapPinIcon className="h-4 w-4 shrink-0 text-primary" />
+              <p className="min-w-0 flex-1 truncate text-sm font-medium">
+                <span className="text-muted-foreground">
+                  Within {searchRadius} km of
+                </span>{" "}
+                <span className="text-primary">{location.address}</span>
+              </p>
+              <Link
+                href="/profile"
+                className="shrink-0 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+              >
+                Change
+              </Link>
+            </div>
+          </div>
+
+          {/* Search Results Indicator */}
+          {searchQuery && (
+            <div className="mt-4 flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1.5">
+                <SearchIcon className="h-3 w-3" />
+                Results for &quot;{searchQuery}&quot;
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                {sessionsWithDistance.length}{" "}
+                {sessionsWithDistance.length === 1 ? "class" : "classes"} found
+              </span>
+              <Link
+                href="/classes"
+                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                Clear search
+              </Link>
+            </div>
+          )}
+
+          {/* Active Filters Indicator */}
+          {!searchQuery && activeFilterCount > 0 && (
+            <div className="mt-4 flex items-center gap-2">
+              <Badge variant="secondary" className="gap-1.5">
+                {activeFilterCount}{" "}
+                {activeFilterCount === 1 ? "filter" : "filters"} active
+              </Badge>
+              <span className="text-sm text-muted-foreground">
+                {sessionsWithDistance.length}{" "}
+                {sessionsWithDistance.length === 1 ? "class" : "classes"} found
+              </span>
+              <Link
+                href="/classes"
+                className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                Clear all filters
+              </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex gap-6">
+          {/* Collapsible Filters Sidebar */}
+          <ClassesFilters
+            categories={categories}
+            activeFilters={{
+              venueId: venueId || null,
+              venueName,
+              categoryIds,
+              tierLevels,
+            }}
+          />
+
+          {/* Sessions Content */}
+          <div className="min-w-0 flex-1">
+            <ClassesContent
+              groupedSessions={groupedArray}
+              bookedSessionIds={Array.from(bookedSessionIds)}
+            />
+          </div>
+
+          {/* Map Sidebar - Hidden on mobile/tablet, visible on xl screens */}
+          <aside className="hidden w-[400px] shrink-0 xl:block">
+            <Card className="sticky top-20 h-[calc(100vh-8rem)] overflow-hidden p-0">
+              <ClassesMapSidebar
+                venues={venuesForMap}
+                userLocation={{ lat: location.lat, lng: location.lng }}
+              />
+            </Card>
+          </aside>
+        </div>
+      </main>
+    </div>
+  );
 };
 
 export default ClassesPage;

@@ -194,7 +194,7 @@ export function ClassesFilters({
             )}
           </button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-80 overflow-y-auto">
+        <SheetContent side="right" className="w-80 overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
               <SlidersHorizontal className="h-4 w-4 text-primary" />
@@ -262,4 +262,3 @@ export function ClassesFilters({
     </aside>
   );
 }
-
