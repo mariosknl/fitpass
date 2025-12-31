@@ -1,7 +1,6 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
-import { revalidatePath } from "next/cache";
 import { client } from "@/sanity/lib/client";
 import { writeClient } from "@/sanity/lib/writeClient";
 import {
@@ -159,9 +158,6 @@ export async function createBooking(sessionId: string): Promise<BookingResult> {
       bookingId = booking._id;
     }
 
-    revalidatePath("/bookings");
-    revalidatePath("/classes");
-
     return {
       success: true,
       bookingId,
@@ -226,9 +222,6 @@ export async function cancelBooking(bookingId: string): Promise<BookingResult> {
         cancelledAt: new Date().toISOString(),
       })
       .commit();
-
-    revalidatePath("/bookings");
-    revalidatePath("/classes");
 
     return { success: true, message: "Booking cancelled successfully" };
   } catch (error) {
@@ -304,8 +297,6 @@ export async function confirmAttendance(
         attendedAt: now.toISOString(),
       })
       .commit();
-
-    revalidatePath("/bookings");
 
     return { success: true, message: "Attendance confirmed!" };
   } catch (error) {
